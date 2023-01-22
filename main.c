@@ -13,6 +13,7 @@ double calculate_mode(double*, int);
 double calculate_zero_cross(double*, int);
 void calculate_skewness_and_kurtosis(double*, int, double*, double*);
 void sort_array(double*, double*, int);
+int get_sign(double);
 
 
 double** allocate_array(int* shape) {
@@ -96,8 +97,22 @@ double calculate_mode(double* data, int size) {
     return (double)(result/1000000.0);
 }
 
-double calculate_zero_cross(double*, int) {
-    // todo
+double calculate_zero_cross(double* data, int size) {
+    int i, current_sign, previous_sign, zero_cross_counter=0;
+
+    for (i=0; i<size; i++) {
+        if (i==0) {
+            previous_sign = get_sign(data[i]);
+            continue;
+        }
+        current_sign = get_sign(data[i]);
+        if (current_sign != previous_sign) {
+            zero_cross_counter += 1;
+        }
+        previous_sign = current_sign;
+    }
+
+    return (double)zero_cross_counter;
 }
 
 void calculate_skewness_and_kurtosis(double*, int, double*, double*) {
@@ -126,6 +141,13 @@ void sort_array(double* source, double* result, int size) {
     }
 
 }
+
+int get_sign(double num) {
+    if (num < 0.0) return -1;
+    if (num > 0.0) return 1;
+    return 0;
+}
+
 
 void get_statistical_features(double** data, int* shape, double** statistical_features) {
     double mean, stdev, mode, zero_cross, skewness, kurtosis;
