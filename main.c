@@ -50,15 +50,15 @@ double calculate_stdev(double* data, int size) {
 }
 
 double calculate_mode(double* data, int size) {
-    long previous_value, current_value;
+    int previous_value=0, current_value;
     double result = 0.0;
     double* sorted_data = (double*)malloc(size*sizeof(double));
-    int i, current_counter=0, max_count=0;
+    int i, current_counter=1, max_count=1;
 
     sort_array(data, sorted_data, size);
 
     for (i=0; i<size; i++) {
-        current_value = (long)round(data[i]*1000000);
+        current_value = (int)round(sorted_data[i]*1000000);
         if (i==0) {
             previous_value = current_value;
             result = current_value;
@@ -73,7 +73,7 @@ double calculate_mode(double* data, int size) {
             previous_value = current_value;
             continue;
         }
-        current_counter=0;
+        current_counter=1;
         previous_value = current_value;
     }
 
@@ -180,7 +180,7 @@ int main_dummy() {
 }
 
 int main() {
-    double value[] = {1.0, 2.0, 3.0, 4.0, 2.0, 6.0};
+    double value[] = {1.0, 2.0, 1.0, 4.0, 2.0, 1.0};
     int data_shape[] = {1, sizeof(value)/sizeof(value[0])};
     double** data = allocate_array(data_shape);
     double** s_data = allocate_array(data_shape);
