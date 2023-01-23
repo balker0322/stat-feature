@@ -14,7 +14,7 @@ double calculate_mean(double*, int);
 double calculate_stdev(double*, int, double, bool);
 double calculate_mode(double*, int);
 double calculate_zero_cross(double*, int);
-void calculate_skewness_and_kurtosis(double*, int, double*, double*);
+void calculate_skewness_and_kurtosis(double*, int, double, double*, double*);
 void sort_array(double*, double*, int);
 int get_sign(double);
 void swap_num(double*, double*);

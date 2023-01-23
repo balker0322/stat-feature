@@ -104,8 +104,8 @@ double calculate_zero_cross(double* data, int size) {
     return (double)zero_cross_counter;
 }
 
-void calculate_skewness_and_kurtosis(double* data, int size, double* skewness, double* kurtosis) {
-    // todo
+void calculate_skewness_and_kurtosis(double* data, int size, double mean, double* skewness, double* kurtosis) {
+    
 }
 
 void sort_array(double* source, double* result, int size) {
