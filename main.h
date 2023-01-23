@@ -18,6 +18,9 @@ void calculate_skewness_and_kurtosis(double*, int, double, double*, double*);
 void sort_array(double*, double*, int);
 int get_sign(double);
 void swap_num(double*, double*);
+double rand_uniform(void);
+double rand_normal(void);
+void set_random_normal(double**, int*);
 
 
 #endif /* D54FBF41_3E70_410E_9E44_F317E74DE4E8 */

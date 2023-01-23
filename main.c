@@ -105,24 +105,35 @@ double calculate_zero_cross(double* data, int size) {
 }
 
 void calculate_skewness_and_kurtosis(double* data, int size, double mean, double* skewness, double* kurtosis) {
-    
+    int i;
+    double stdev = calculate_stdev(data, size, mean, false);
+    double temp_val, z_score;
+
+    *skewness = 0.0;
+    *kurtosis = 0.0;
+
+    for (i=0; i<size; i++) {
+        z_score = (data[i]-mean)/stdev;
+        temp_val = pow(z_score, 3)/((double)size);
+        *skewness += temp_val;
+        *kurtosis += (temp_val*z_score);
+    }
 }
 
 void sort_array(double* source, double* result, int size) {
     int i=0;
-    short swap_occur = 1;
-    double temp_num;
+    bool swap_occur = true;
 
     for (i=0; i<size; i++) {
         result[i] = source[i];
     }
 
     while (swap_occur == 1) {
-        swap_occur = 0;
+        swap_occur = false;
         for (i=0; i<size-1; i++) {
             if (result[i] > result[i+1]) {
-                swap_occur = 1;
                 swap_num(&result[i], &result[i+1]);
+                swap_occur = true;
             }
         }
     }
@@ -140,6 +151,39 @@ void swap_num(double* a, double* b) {
     *b = temp_num;
 }
 
+double rand_uniform(void) {
+    // Generate random variable from interval (0,1]
+    double result = 0.0;
+    while (result==0.0) {
+        result = (double)rand() / (double)RAND_MAX;
+    }
+    return result;
+}
+
+double rand_normal(void) {
+    // Using Box-Muller transform to convert uniform random into normal distribution w/ standard deviation = 1
+    double PI = 3.14159;
+    double r, theta, x;
+    double mean = 0.0;
+    double stdev = 1.0;
+
+    r = sqrt(-2.0*log(rand_uniform()));
+    theta = 2.0*PI*rand_uniform();
+    x = r*cos(theta);
+
+    return (x * stdev) + mean;
+}
+
+void set_random_normal(double** data, int* shape) {
+    int i, j;
+
+    for (i=0; i<shape[0]; i++) {
+        for (j=0; j<shape[1]; j++) {
+            data[i][j] = rand_normal();
+        }
+    }
+}
+
 void get_statistical_features(double** data, int* shape, double** statistical_features) {
     double mean, stdev, mode, zero_cross, skewness, kurtosis;
     int i;
@@ -149,74 +193,42 @@ void get_statistical_features(double** data, int* shape, double** statistical_fe
         stdev = calculate_stdev(data[i], shape[1], mean, true);
         mode = calculate_mode(data[i], shape[1]);
         zero_cross = calculate_zero_cross(data[i], shape[1]);
-        calculate_skewness_and_kurtosis(data[i], shape[1], &skewness, &kurtosis);
+        calculate_skewness_and_kurtosis(data[i], shape[1], mean, &skewness, &kurtosis);
 
         statistical_features[i][0] = mean;
-        statistical_features[i][1] = stdev;
-        statistical_features[i][2] = mode;
+        statistical_features[i][1] = mode;
+        statistical_features[i][2] = stdev;
         statistical_features[i][3] = zero_cross;
         statistical_features[i][4] = skewness;
         statistical_features[i][5] = kurtosis;
     }
 }
 
-int main_dummy() {
-    int size_dim0, size_dim1;
+int main() {
+    int i;
     int statistical_feature_count = 6;
     int data_shape[] = {2, 10000};
     int statistical_features_shape[] = {data_shape[0], statistical_feature_count};
     double** data = allocate_array(data_shape);
     double** statistical_features = allocate_array(statistical_features_shape);
 
-    size_dim0 = 1;
-    size_dim1 = 2;
-    print_array(data, size_dim0, size_dim1);
+    set_random_normal(data, data_shape);
+
+    printf("shape: (%d, %d)\n", data_shape[0], data_shape[1]);
     get_statistical_features(data, data_shape, statistical_features);
 
-    size_dim0 = statistical_features_shape[0];
-    size_dim1 = statistical_features_shape[1];
-    print_array(statistical_features, size_dim0, size_dim1);
+    for (i=0; i<data_shape[0]; i++) {
+        printf("\nVariable %d\n", i+1);
+        printf("mean: %f\n", statistical_features[i][0]);
+        printf("mode: %f\n", statistical_features[i][1]);
+        printf("stdev: %f\n", statistical_features[i][2]);
+        printf("zero_cross: %f\n", statistical_features[i][3]);
+        printf("skewness: %f\n", statistical_features[i][4]);
+        printf("kurtosis: %f\n", statistical_features[i][5]);
+    }
 
     free_array(data, data_shape);
     free_array(statistical_features, statistical_features_shape);
 
-    return 0;
-}
-
-int main() {
-    double value[] = {1.0, 2.0, -1.0, 4.0, 2.0, -1.0};
-    int data_shape[] = {1, sizeof(value)/sizeof(value[0])};
-    double** data = allocate_array(data_shape);
-    double** s_data = allocate_array(data_shape);
-    int i;
-    bool x = true;
-    for(i=0;i<data_shape[1];i++){
-        data[0][i]=value[i];
-    }
-    // data[0] = {1.0, 2.0, 3.0};
-    // data[0][0] = value[0];
-    // data[0][1] = value[1];
-    // data[0][2] = value[2];
-    // data[1][0] = value[3];
-    // data[1][1] = value[4];
-    // data[1][2] = value[5];
-    sort_array(data[0], s_data[0], data_shape[1]);
-    print_array(data, data_shape[0], data_shape[1]);
-    print_array(s_data, data_shape[0], data_shape[1]);
-
-    double mean = calculate_mean(data[0], data_shape[1]);
-    printf("mean: %f\n", mean);
-    printf("mode: %f\n", calculate_mode(data[0], data_shape[1]));
-    printf("stdev: %f\n", calculate_stdev(data[0], data_shape[1], mean, true));
-    printf("stdev: %f\n", calculate_stdev(data[0], data_shape[1], mean, false));
-    printf("zero cross: %f\n", calculate_zero_cross(data[0], data_shape[1]));
-
-    double a=1.0, b=2.0;
-
-    printf("a=%f, b=%f\n", a, b);
-    swap_num(&a, &b);
-    printf("a=%f, b=%f\n", a, b);
-
-    free_array(data, data_shape);
     return 0;
 }

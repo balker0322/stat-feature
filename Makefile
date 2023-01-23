@@ -5,7 +5,7 @@ TARGET=main #target file name
 SRC=main.c\
 
 all:
-	$(CC) $(SRC) -o $(TARGET)
+	$(CC) $(SRC) -o $(TARGET) -lm
 
 clean:
 	rm $(TARGET)
