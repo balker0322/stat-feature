@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <math.h>
 
 double** allocate_array(int*);
@@ -10,7 +11,7 @@ void free_array(double**, int*);
 void print_array(double**, int, int);
 void get_statistical_features(double**, int*, double**);
 double calculate_mean(double*, int);
-double calculate_stdev(double*, int);
+double calculate_stdev(double*, int, double, bool);
 double calculate_mode(double*, int);
 double calculate_zero_cross(double*, int);
 void calculate_skewness_and_kurtosis(double*, int, double*, double*);

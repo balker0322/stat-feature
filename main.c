@@ -37,16 +37,20 @@ double calculate_mean(double* data, int size) {
     return result;
 }
 
-double calculate_stdev(double* data, int size) {
-    double mean = calculate_mean(data, size);
-    double result = 0.0;
+double calculate_stdev(double* data, int size, double mean, bool unbiased) {
+    double result = 0.0, n;
     int i;
+
+    n = (double)size;
+    if (unbiased) {
+        n-=1.0;
+    }
 
     for (i=0; i<size; i++) {
         result += pow(data[i] - mean, 2);
     }
 
-    return sqrt(result / ((double)size));
+    return sqrt(result / n);
 }
 
 double calculate_mode(double* data, int size) {
@@ -142,7 +146,7 @@ void get_statistical_features(double** data, int* shape, double** statistical_fe
 
     for (i=0; i<shape[0]; i++) {
         mean = calculate_mean(data[i], shape[1]);
-        stdev = calculate_stdev(data[i], shape[1]);
+        stdev = calculate_stdev(data[i], shape[1], mean, true);
         mode = calculate_mode(data[i], shape[1]);
         zero_cross = calculate_zero_cross(data[i], shape[1]);
         calculate_skewness_and_kurtosis(data[i], shape[1], &skewness, &kurtosis);
@@ -180,11 +184,12 @@ int main_dummy() {
 }
 
 int main() {
-    double value[] = {1.0, 2.0, 1.0, 4.0, 2.0, 1.0};
+    double value[] = {1.0, 2.0, -1.0, 4.0, 2.0, -1.0};
     int data_shape[] = {1, sizeof(value)/sizeof(value[0])};
     double** data = allocate_array(data_shape);
     double** s_data = allocate_array(data_shape);
     int i;
+    bool x = true;
     for(i=0;i<data_shape[1];i++){
         data[0][i]=value[i];
     }
@@ -199,8 +204,12 @@ int main() {
     print_array(data, data_shape[0], data_shape[1]);
     print_array(s_data, data_shape[0], data_shape[1]);
 
-    printf("mean: %f\n", calculate_mean(data[0], data_shape[1]));
+    double mean = calculate_mean(data[0], data_shape[1]);
+    printf("mean: %f\n", mean);
     printf("mode: %f\n", calculate_mode(data[0], data_shape[1]));
+    printf("stdev: %f\n", calculate_stdev(data[0], data_shape[1], mean, true));
+    printf("stdev: %f\n", calculate_stdev(data[0], data_shape[1], mean, false));
+    printf("zero cross: %f\n", calculate_zero_cross(data[0], data_shape[1]));
 
     double a=1.0, b=2.0;
 
