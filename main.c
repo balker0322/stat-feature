@@ -1,20 +1,4 @@
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-
-double** allocate_array(int*);
-void free_array(double**, int*);
-void print_array(double**, int, int);
-void get_statistical_features(double**, int*, double**);
-double calculate_mean(double*, int);
-double calculate_stdev(double*, int);
-double calculate_mode(double*, int);
-double calculate_zero_cross(double*, int);
-void calculate_skewness_and_kurtosis(double*, int, double*, double*);
-void sort_array(double*, double*, int);
-int get_sign(double);
-void swap_num(double*, double*);
+#include "main.h"
 
 
 double** allocate_array(int* shape) {
@@ -74,12 +58,12 @@ double calculate_mode(double* data, int size) {
     sort_array(data, sorted_data, size);
 
     for (i=0; i<size; i++) {
+        current_value = (long)round(data[i]*1000000);
         if (i==0) {
-            previous_value = (long)round(data[i]*1000000);
-            result = previous_value;
+            previous_value = current_value;
+            result = current_value;
             continue;
         }
-        current_value = (long)round(data[i]*1000000);
         if (current_value == previous_value) {
             current_counter+=1;
             if (current_counter>max_count) {
@@ -116,7 +100,7 @@ double calculate_zero_cross(double* data, int size) {
     return (double)zero_cross_counter;
 }
 
-void calculate_skewness_and_kurtosis(double*, int, double*, double*) {
+void calculate_skewness_and_kurtosis(double* data, int size, double* skewness, double* kurtosis) {
     // todo
 }
 
@@ -148,8 +132,8 @@ int get_sign(double num) {
 
 void swap_num(double* a, double* b) {
     double temp_num = *a;
-    *b = temp_num;
     *a = *b;
+    *b = temp_num;
 }
 
 void get_statistical_features(double** data, int* shape, double** statistical_features) {
@@ -172,7 +156,7 @@ void get_statistical_features(double** data, int* shape, double** statistical_fe
     }
 }
 
-int main() {
+int main_dummy() {
     int size_dim0, size_dim1;
     int statistical_feature_count = 6;
     int data_shape[] = {2, 10000};
@@ -182,7 +166,7 @@ int main() {
 
     size_dim0 = 1;
     size_dim1 = 2;
-    print_array(data_shape, size_dim0, size_dim1);
+    print_array(data, size_dim0, size_dim1);
     get_statistical_features(data, data_shape, statistical_features);
 
     size_dim0 = statistical_features_shape[0];
@@ -192,5 +176,38 @@ int main() {
     free_array(data, data_shape);
     free_array(statistical_features, statistical_features_shape);
 
+    return 0;
+}
+
+int main() {
+    double value[] = {1.0, 2.0, 3.0, 4.0, 2.0, 6.0};
+    int data_shape[] = {1, sizeof(value)/sizeof(value[0])};
+    double** data = allocate_array(data_shape);
+    double** s_data = allocate_array(data_shape);
+    int i;
+    for(i=0;i<data_shape[1];i++){
+        data[0][i]=value[i];
+    }
+    // data[0] = {1.0, 2.0, 3.0};
+    // data[0][0] = value[0];
+    // data[0][1] = value[1];
+    // data[0][2] = value[2];
+    // data[1][0] = value[3];
+    // data[1][1] = value[4];
+    // data[1][2] = value[5];
+    sort_array(data[0], s_data[0], data_shape[1]);
+    print_array(data, data_shape[0], data_shape[1]);
+    print_array(s_data, data_shape[0], data_shape[1]);
+
+    printf("mean: %f\n", calculate_mean(data[0], data_shape[1]));
+    printf("mode: %f\n", calculate_mode(data[0], data_shape[1]));
+
+    double a=1.0, b=2.0;
+
+    printf("a=%f, b=%f\n", a, b);
+    swap_num(&a, &b);
+    printf("a=%f, b=%f\n", a, b);
+
+    free_array(data, data_shape);
     return 0;
 }
